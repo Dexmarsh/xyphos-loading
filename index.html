@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Xyphos-ZCity</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #121214;
+            color: #e1e1e6;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .container {
+            background: #18181b;
+            padding: 50px;
+            border-radius: 6px;
+            width: 85vw;
+            max-width: 1100px;
+            border: 1px solid #27272a;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: 32px;
+            color: #ffffff;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            color: #a1a1aa;
+            margin-bottom: 40px;
+        }
+
+        .status-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+            margin-bottom: 10px;
+            color: #a1a1aa;
+        }
+
+        .status-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Animated ... dots */
+        .dots span {
+            animation: blink 1.4s infinite;
+            animation-fill-mode: both;
+            font-weight: bold;
+        }
+
+        .dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes blink {
+            0% { opacity: 0.2; }
+            20% { opacity: 1; }
+            100% { opacity: 0.2; }
+        }
+
+        .bar-bg {
+            background: #09090b;
+            height: 28px;
+            border-radius: 4px;
+            border: 1px solid #27272a;
+            padding: 3px;
+            margin-bottom: 14px;
+        }
+
+        .bar {
+            background: #3b82f6;
+            height: 100%;
+            width: 0%;
+            border-radius: 2px;
+            transition: width 0.1s linear;
+        }
+
+        .file {
+            font-size: 12px;
+            color: #71717a;
+            height: 18px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 25px;
+        }
+
+        .map {
+            font-size: 15px;
+            color: #a1a1aa;
+            border-top: 1px solid #27272a;
+            padding-top: 18px;
+        }
+
+        .map-name {
+            color: #ffffff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Welcome to Xyphos-ZCity</h1>
+        <div class="subtitle">Connecting to server...</div>
+
+        <div class="status-line">
+            <div class="status-wrapper">
+                <span id="status">Loading</span>
+                <span class="dots"><span>.</span><span>.</span><span>.</span></span>
+            </div>
+            <span id="percent">0%</span>
+        </div>
+
+        <div class="bar-bg">
+            <div class="bar" id="bar"></div>
+        </div>
+
+        <div class="file" id="file">...</div>
+
+        <div class="map">
+            The map is currently: <span class="map-name" id="map">Loading...</span>
+        </div>
+    </div>
+
+   <script>
+        var totalFiles = 0;
+        var neededFiles = 0;
+
+        // Called when total download count is provided
+        function SetFilesTotal(total) {
+            totalFiles = total;
+            updateProgress();
+        }
+
+        // Called when remaining download count updates
+        function SetFilesNeeded(needed) {
+            neededFiles = needed;
+            if (totalFiles === 0 || needed > totalFiles) {
+                totalFiles = needed; // Fallback if SetFilesTotal wasn't sent first
+            }
+            updateProgress();
+        }
+
+        function updateProgress() {
+            if (totalFiles > 0) {
+                var downloaded = totalFiles - neededFiles;
+                var p = Math.floor((downloaded / totalFiles) * 100);
+                if (p < 0) p = 0;
+                if (p > 100) p = 100;
+                
+                document.getElementById('bar').style.width = p + '%';
+                document.getElementById('percent').innerText = p + '%';
+            }
+        }
+
+        function SetStatusChanged(status) {
+            document.getElementById('status').innerText = status;
+            // If server finishes or sends client info, fill the bar
+            if (status.indexOf("Sending client info") !== -1 || status.indexOf("Workshop Complete") !== -1) {
+                document.getElementById('bar').style.width = '100%';
+                document.getElementById('percent').innerText = '100%';
+            }
+        }
+
+        function DownloadingFile(fileName) {
+            document.getElementById('file').innerText = fileName;
+        }
+
+        function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode) {
+            if (mapname) {
+                document.getElementById('map').innerText = mapname;
+            }
+        }
+
+        // URL query parameter fallback for map name
+        var params = new URLSearchParams(window.location.search);
+        var mapParam = params.get('mapname');
+        if (mapParam) {
+            document.getElementById('map').innerText = mapParam;
+        }
+    </script>
+</body>
+</html>
