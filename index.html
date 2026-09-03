@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Xyphos-ZCity</title>
+    <style>
+        body {
+            background-color: #0d0d11;
+            color: #fff;
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .box {
+            background: #16161e;
+            padding: 40px;
+            border-radius: 10px;
+            width: 450px;
+            border: 1px solid #282838;
+        }
+
+        h1 {
+            margin: 0 0 5px 0;
+            font-size: 26px;
+            color: #00a2ff;
+        }
+
+        p {
+            color: #888;
+            margin: 0 0 25px 0;
+            font-size: 14px;
+        }
+
+        .status {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .bar-bg {
+            background: #0d0d11;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .bar {
+            background: #00a2ff;
+            height: 100%;
+            width: 0%;
+            transition: width 0.2s;
+        }
+
+        .file {
+            font-size: 11px;
+            color: #555;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .map {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h1>Welcome to Xyphos-ZCity</h1>
+        <p>Joining server...</p>
+
+        <div class="status">
+            <span id="status">Connecting</span>
+            <span id="percent">0%</span>
+        </div>
+
+        <div class="bar-bg">
+            <div class="bar" id="bar"></div>
+        </div>
+
+        <div class="file" id="file">...</div>
+
+        <div class="map">Map: <span id="map">Loading...</span></div>
+    </div>
+
+    <script>
+        let total = 0;
+
+        function SetFilesNeeded(needed) {
+            total = needed;
+        }
+
+        function SetFilesRemaining(remaining) {
+            if (total > 0) {
+                let p = Math.floor(((total - remaining) / total) * 100);
+                document.getElementById('bar').style.width = p + '%';
+                document.getElementById('percent').innerText = p + '%';
+            }
+        }
+
+        function SetStatusChanged(status) {
+            document.getElementById('status').innerText = status;
+        }
+
+        function DownloadingFile(fileName) {
+            document.getElementById('file').innerText = fileName;
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        document.getElementById('map').innerText = params.get('mapname') || 'Unknown';
+    </script>
+
+    <script>
+    let total = 0;
+
+    // Attach callbacks to 'window' so GMod can see them globally
+    window.SetFilesNeeded = function(needed) {
+        total = needed;
+    };
+
+    window.SetFilesRemaining = function(remaining) {
+        if (total > 0) {
+            let p = Math.floor(((total - remaining) / total) * 100);
+            document.getElementById('bar').style.width = p + '%';
+            document.getElementById('percent').innerText = p + '%';
+        }
+    };
+
+    window.SetStatusChanged = function(status) {
+        document.getElementById('status').innerText = status;
+    };
+
+    window.DownloadingFile = function(fileName) {
+        document.getElementById('file').innerText = fileName;
+    };
+
+    // Built-in GMod event that fires with full server/map details
+    window.GameDetails = function(servername, serverurl, mapname, maxplayers, steamid, gamemode) {
+        if (mapname) {
+            document.getElementById('map').innerText = mapname;
+        }
+    };
+
+    // Fallback URL parser for map name
+    const params = new URLSearchParams(window.location.search);
+    const urlMap = params.get('mapname');
+    if (urlMap) {
+        document.getElementById('map').innerText = urlMap;
+    }
+</body>
+</html>
